@@ -1,0 +1,36 @@
+import numpy as np
+
+# Parameters
+dx = 0.1
+dt = 0.1
+x = np.arange(0, 1 + dx, dx)
+t = np.arange(0, 1 + dt, dt)
+nx = len(x)
+nt = len(t)
+lmbd = dt / dx  # lambda = 1
+
+# Initial condition
+p = np.zeros((nt, nx))
+p[0] = np.cos(2 * np.pi * x)
+
+# First time step (n=1) using initial velocity
+for i in range(1, nx - 1):
+    p[1, i] = (p[0, i] + dt * 2 * np.pi * np.sin(2 * np.pi * x[i]) +
+               0.5 * lmbd**2 * (p[0, i+1] - 2 * p[0, i] + p[0, i-1]))
+
+# Boundary conditions for n=1
+p[1, 0] = 1
+p[1, -1] = 2
+
+# Time loop: n >= 1
+for n in range(1, nt - 1):
+    for i in range(1, nx - 1):
+        p[n+1, i] = (2 * p[n, i] - p[n-1, i] +
+                     lmbd**2 * (p[n, i+1] - 2 * p[n, i] + p[n, i-1]))
+    p[n+1, 0] = 1
+    p[n+1, -1] = 2
+
+# Final output
+print("\n=== p(x, t=1) ===")
+for i in range(nx):
+    print(f"p({x[i]:.1f}, 1.0) = {p[-1, i]:.6f}")
